@@ -27,7 +27,6 @@
 //////////////////////////////////////////////////////
 
 ////// Global Variables //////
-//ADC::Sync_result result;    // Used to collect syncronus read data from ADCs
 FFT256 FFT1;		    // object to do Fourier Analysis on ADC0
 FFT256 FFT2;		    // object to do Fourier Analysis on ADC1
 const int readPin = A9;     // pin on ADC0
