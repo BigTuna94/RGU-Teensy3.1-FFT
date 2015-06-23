@@ -51,6 +51,11 @@ void setup()
         Serial.println("adc init...");
 	adc_init();	
 
+        // setup PDB
+        adc->adc0->stopPDB();
+        adc->adc0->startPDB( AUDIO_SAMPLE_RATE ); //frequency in Hz
+        adc->adc1->stopPDB();
+        adc->adc1->startPDB( AUDIO_SAMPLE_RATE ); //frequency in Hz
           
         //FFT1.windowFunction(AudioWindowHanning256);
         //FFT2.windowFunction(AudioWindowHanning256);
@@ -64,8 +69,13 @@ int value, value2;
 int16_t audioDataADC0[256];
 int16_t audioDataADC1[256];
 
+
 void loop()
 {
+    // allocate for audio data
+    memset(audioDataADC0, 0, sizeof(audioDataADC0));
+    memset(audioDataADC1, 0, sizeof(audioDataADC1));  
+  
     // read synchronus data from ADC at 44.1KHz
     for ( int i=0; i<256; i++ )
     {
@@ -77,10 +87,6 @@ void loop()
         //Serial.println(value2*3.3/adc->getMaxValue(ADC_1), DEC);
         //Serial.print("ADC1 val: ");
         //Serial.println(value2);
-        adc->adc0->stopPDB();
-        adc->adc0->startPDB( AUDIO_SAMPLE_RATE ); //frequency in Hz
-        adc->adc1->stopPDB();
-        adc->adc1->startPDB( AUDIO_SAMPLE_RATE ); //frequency in Hz
 
     
         // Sometimes the comparison errors flip, Don't know why.
@@ -112,14 +118,24 @@ void loop()
 
     FFT1.inputAudio(audioDataADC0);
     FFT2.inputAudio(audioDataADC1);
+    
+    
+//    for(int i=0; i < 256; i++)
+//    {
+//      Serial.print("Original mem : "); Serial.println((int)&audioDataADC0[i]);  // Just for testing
+//      Serial.print("The Copy mem : "); Serial.println((int)&FFT1.buffer[i]);
+//    } HALT();
 
-
+//    Serial.print("sizeof(audioDataADC0)="); Serial.println(sizeof(audioDataADC0));
+//    HALT();
+    
+    
     // update FFT object
     
     FFT1.update();
     FFT2.update();
 
-
+   
     // read analysis data from FFT objects
     float analysisData1[512];
     float analysisData2[512];
@@ -160,11 +176,14 @@ void loop()
       Serial.println();
     }
     
-   if (t++ > 100) HALT();
+   if (t++ > 10000) HALT();
 }
+
+
 
 void HALT()
 {
+  Serial.println("Halting."); 
   while( 1 ) ;
 }
 
